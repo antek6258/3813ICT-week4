@@ -8,7 +8,6 @@ import { Router } from '@angular/router';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-
 export class Login {
 
   email = '';
@@ -16,40 +15,35 @@ export class Login {
 
   errorMessage = '';
 
-  users = [
-    {
-      email: 'anna@test.com',
-      password: '1234'
-    },
-    {
-      email: 'otter@email.com',
-      password: 'password'
-    },
-    {
-      email: 'admin@test.com',
-      password: 'admin'
-    }
-  ];
-
   constructor(private router: Router) {}
 
-  login() {
+  async login() {
 
-    const user = this.users.find(
-      user => user.email === this.email &&
-              user.password === this.password
-    );
+    const response = await fetch('http://localhost:3000/api/auth', {
+      method: 'POST',
 
-    if (user) {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+
+      body: JSON.stringify({
+        email: this.email,
+        password: this.password
+      })
+    });
+
+    const user = await response.json();
+
+    if (user.valid) {
+
+      localStorage.setItem('user', JSON.stringify(user));
 
       this.router.navigate(['/profile']);
 
     } else {
 
-      this.errorMessage = 'Invalid email or password. Please try again.';
+      this.errorMessage = 'Email or password is incorrect';
 
     }
-
   }
-
 }
